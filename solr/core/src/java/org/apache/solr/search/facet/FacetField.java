@@ -49,6 +49,7 @@ public class FacetField extends FacetRequestSorted {
     DV, // DocValues, collect into ordinal array
     UIF, // UnInvertedField, collect into ordinal array
     DVHASH, // DocValues, collect into hash
+    DVSTRING, // DocValues, collect into hash, for non-numeric single or multi-valued fields
     ENUM, // TermsEnum then intersect DocSet (stream-able)
     STREAM, // presently equivalent to ENUM
     SMART,
@@ -63,6 +64,8 @@ public class FacetField extends FacetRequestSorted {
           return UIF;
         case "dvhash":
           return DVHASH;
+        case "dvstring":
+          return DVSTRING;
         case "enum":
           return ENUM;
         case "stream":
@@ -133,6 +136,12 @@ public class FacetField extends FacetRequestSorted {
             : (null == prelim_sort && FacetSort.INDEX_ASC.equals(sort)))) {
 
       return new FacetFieldProcessorByEnumTermsStream(fcontext, this, sf);
+    }
+
+    if (method == FacetMethod.DVSTRING) {
+      if (mincount > 0 && prefix == null && !isNumber && sf.hasDocValues()) {
+        return new FacetFieldProcessorByHashDVString(fcontext, this, sf);
+      }
     }
 
     // TODO if method=UIF and not single-valued numerics then simply choose that now? TODO add
