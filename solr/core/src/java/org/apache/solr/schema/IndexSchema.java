@@ -40,6 +40,7 @@ import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.TreeSet;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -165,7 +166,7 @@ public class IndexSchema {
   }
 
   private Map<FieldType, PayloadDecoder> decoders =
-      new HashMap<>(); // cache to avoid scanning token filters repeatedly, unnecessarily
+      new ConcurrentHashMap<>(); // cache to avoid scanning token filters repeatedly, unnecessarily
 
   /** keys are all fields copied to, count is num of copyField directives that target them. */
   protected Map<SchemaField, Integer> copyFieldTargetCounts = new HashMap<>();
