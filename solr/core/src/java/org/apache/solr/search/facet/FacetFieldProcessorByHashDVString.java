@@ -139,12 +139,12 @@ class FacetFieldProcessorByHashDVString extends FacetFieldProcessor {
     // for the response, and if used for sorting by count, both of which it can do by using the table
     countAcc = new CountSlotAcc(fcontext) {
       @Override
-      public void incrementCount(int slot, int count) {
+      public void incrementCount(int slot, long count) {
         throw new UnsupportedOperationException();
       }
 
       @Override
-      public int getCount(int slot) {
+      public long getCount(int slot) {
         return table.get(slotList.get(slot)).count;
       }
 
@@ -165,7 +165,7 @@ class FacetFieldProcessorByHashDVString extends FacetFieldProcessor {
 
       @Override
       public int compare(int slotA, int slotB) {
-        return Integer.compare( getCount(slotA), getCount(slotB) );
+        return Long.compare( getCount(slotA), getCount(slotB) );
       }
 
       @Override
@@ -240,7 +240,7 @@ class FacetFieldProcessorByHashDVString extends FacetFieldProcessor {
             int docOrdinal = values.ordValue();
             BytesRef docValue = segOrdinalValueCache.get(docOrdinal);
             if (docValue == null) {
-              docValue = BytesRef.deepCopyOf(values.binaryValue());
+              docValue = BytesRef.deepCopyOf(values.lookupOrd(docOrdinal));
               segOrdinalValueCache.put(docOrdinal, docValue);
             }
             collectValFirstPhase(segDoc, docValue);

@@ -47,7 +47,6 @@ import org.apache.solr.response.SolrQueryResponse;
 import org.apache.solr.search.DocList;
 import org.apache.solr.search.DocSet;
 import org.apache.solr.search.DocSlice;
-import org.apache.solr.search.Filter;
 import org.apache.solr.search.FunctionQParser;
 import org.apache.solr.search.QParser;
 import org.apache.solr.search.QueryUtils;
@@ -149,7 +148,7 @@ public class TopDocsAgg extends AggValueSource {
 
 
   @Override
-  public SlotAcc createSlotAcc(FacetContext fcontext, int numDocs, int numSlots) throws IOException {
+  public SlotAcc createSlotAcc(FacetContext fcontext, long numDocs, int numSlots) throws IOException {
     ResponseBuilder rb = SolrRequestInfo.getRequestInfo().getResponseBuilder();
 
     Query query = null;
@@ -279,7 +278,7 @@ public class TopDocsAgg extends AggValueSource {
     @Override
     public int collect(DocSet docs, int slot, IntFunction<SlotContext> slotContext) throws IOException {
       assert null == result[slot];
-      return buildResultForSlot(docs.getTopFilter(), slot);
+      return buildResultForSlot(docs.makeQuery(), slot);
     }
 
     private int buildResultForSlot(Query slotQuery, int slot) throws IOException {
@@ -288,7 +287,7 @@ public class TopDocsAgg extends AggValueSource {
       if (slotQuery != null) {
         builder.add(slotQuery, BooleanClause.Occur.FILTER);
       }
-      builder.add(fcontext.base.getTopFilter(), BooleanClause.Occur.FILTER);
+      builder.add(fcontext.base.makeQuery(), BooleanClause.Occur.FILTER);
       Query finalQuery = builder.build();
 
       if (sort == null) sort = Sort.RELEVANCE;
