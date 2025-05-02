@@ -1,5 +1,3 @@
-package org.apache.solr.search.facet;
-
 /*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -16,11 +14,11 @@ package org.apache.solr.search.facet;
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package org.apache.solr.search.facet;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -57,7 +55,7 @@ import org.apache.solr.search.SortSpecParsing;
 import org.apache.solr.search.SyntaxError;
 import org.apache.solr.search.ValueSourceParser;
 
-
+@SuppressWarnings({"unchecked", "rawtypes"})
 public class TopDocsAgg extends AggValueSource {
   Object qArg;
   int limit;
@@ -388,7 +386,7 @@ public class TopDocsAgg extends AggValueSource {
           }
         };
 
-        Collections.sort(combinedDocs, docComparator);
+        combinedDocs.sort(docComparator);
       }
 
       result.addAll(combinedDocs.size() > limit ? combinedDocs.subList(0, limit) : combinedDocs);

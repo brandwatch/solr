@@ -46,7 +46,7 @@ public class ConditionalUpsertProcessorFactory extends UpdateRequestProcessorFac
   private final List<UpsertCondition> conditions = new ArrayList<>();
 
   @Override
-  public void init(NamedList args)  {
+  public void init(NamedList<?> args)  {
     conditions.clear();
     conditions.addAll(UpsertCondition.readConditions(args));
     super.init(args);

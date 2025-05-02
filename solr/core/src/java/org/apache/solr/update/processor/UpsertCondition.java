@@ -1,4 +1,3 @@
-package org.apache.solr.update.processor;
 /*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -15,6 +14,7 @@ package org.apache.solr.update.processor;
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package org.apache.solr.update.processor;
 
 import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
@@ -31,7 +31,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
-import org.apache.commons.lang3.StringUtils;
 import org.apache.lucene.search.BooleanClause;
 import org.apache.solr.common.SolrException;
 import org.apache.solr.common.SolrInputDocument;
@@ -60,9 +59,10 @@ class UpsertCondition {
     this.actions = actions;
   }
 
-  static List<UpsertCondition> readConditions(NamedList args) {
+  @SuppressWarnings("unchecked")
+  static List<UpsertCondition> readConditions(NamedList<?> args) {
     List<UpsertCondition> conditions = new ArrayList<>(args.size());
-    for (Map.Entry<String, ?> entry: (NamedList<?>)args) {
+    for (Map.Entry<String, ?> entry: args) {
       String name = entry.getKey();
       Object tmp = entry.getValue();
       if (tmp instanceof NamedList) {
@@ -381,7 +381,10 @@ class UpsertCondition {
 
     private static String getFieldValue(String field, SolrInputDocument oldDoc, SolrInputDocument newDoc) {
       boolean optional = field.endsWith("?");
-      for (String fieldName : StringUtils.removeEnd(field, "?").split("\\|")) {
+      if (optional) {
+        field = field.substring(0, field.length() - 1);
+      }
+      for (String fieldName : field.split("\\|")) {
         String value = getFieldFromDoc(fieldName, newDoc);
         if (value != null) {
           return value;

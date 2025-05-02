@@ -32,6 +32,7 @@ import org.apache.lucene.search.SimpleCollector;
 import org.apache.lucene.util.BitUtil;
 import org.apache.lucene.util.BytesRef;
 import org.apache.solr.common.SolrException;
+import org.apache.solr.common.util.CollectionUtil;
 import org.apache.solr.common.util.SimpleOrderedMap;
 import org.apache.solr.schema.SchemaField;
 import org.apache.solr.search.DocSetUtil;
@@ -92,7 +93,7 @@ class FacetFieldProcessorByHashDVString extends FacetFieldProcessor {
     int hashSize = BitUtil.nextHighestPowerOfTwo((int) (possibleValues * (1 / 0.7) + 1));
     hashSize = Math.min(hashSize, 1024);
 
-    table = new HashMap<>(hashSize);
+    table = CollectionUtil.newHashMap(hashSize);
     slotList = new ArrayList<>();
 
     // The initial value of capacity. Note that slot capacity and resizing only does anything
@@ -196,7 +197,7 @@ class FacetFieldProcessorByHashDVString extends FacetFieldProcessor {
         protected void doSetNextReader(LeafReaderContext ctx) throws IOException {
           setNextReaderFirstPhase(ctx);
           values = DocValues.getSortedSet(ctx.reader(), sf.getName());
-          segOrdinalValueCache = new HashMap<>((int)values.getValueCount());
+          segOrdinalValueCache = CollectionUtil.newHashMap((int)values.getValueCount());
         }
 
         @Override
@@ -231,7 +232,7 @@ class FacetFieldProcessorByHashDVString extends FacetFieldProcessor {
         protected void doSetNextReader(LeafReaderContext ctx) throws IOException {
           setNextReaderFirstPhase(ctx);
           values = DocValues.getSorted(ctx.reader(), sf.getName());
-          segOrdinalValueCache = new HashMap<>(values.getValueCount());
+          segOrdinalValueCache = CollectionUtil.newHashMap(values.getValueCount());
         }
 
         @Override
