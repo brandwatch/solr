@@ -175,7 +175,7 @@ public class SortSpecParsing {
         if (null == top) {
           throw new SolrException(
               SolrException.ErrorCode.BAD_REQUEST,
-              "Can't determine a Sort Order (asc or desc) in sort spec " + sp);
+              "Can't determine a Sort Order (asc or desc) in sort spec " + sp, qParserException);
         }
 
         if (SCORE.equals(field)) {

@@ -757,7 +757,9 @@ public class DirectUpdateHandler2 extends UpdateHandler
         if (cmd.optimize) {
           writer.forceMerge(cmd.maxOptimizeSegments);
         } else if (cmd.expungeDeletes) {
+          log.warn("Starting expungeDeletes of {}", core.getName());
           writer.forceMergeDeletes();
+          log.warn("Finished expungeDeletes of {}", core.getName());
         }
 
         if (!cmd.softCommit) {

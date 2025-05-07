@@ -602,6 +602,10 @@ public class SolrCore implements SolrInfoBean, Closeable {
       delPolicy = new SolrDeletionPolicy();
     }
 
+    if (delPolicy instanceof SolrMetricProducer) {
+      coreMetricManager.registerMetricProducer("IndexDeletionPolicy", (SolrMetricProducer)delPolicy);
+    }
+
     return new IndexDeletionPolicyWrapper(delPolicy, snapshotMgr);
   }
 
