@@ -1,0 +1,64 @@
+# This GHA Builds a tarball, creates a tag and release of said tarball
+# This will only trigger when pull requests have been merged on any
+# bw_branch_XX branch, on the Brandwatch/solr repo
+name: Publish Release
+
+on:
+  pull_request:
+    types: [closed]
+    branches:
+      - bw_branch_*
+
+jobs:
+  release:
+    if: github.event.pull_request.merged == true && github.repository == 'Brandwatch/solr'
+    
+    runs-on: ubuntu-latest
+
+    outputs:
+      version: ${{ steps.variables.outputs.version }}
+      build_number: ${{ steps.variables.outputs.build_number }}
+
+    steps:
+      - name: Set variables
+        id: variables
+        run: |
+          version=$( echo ${{ github.event.pull_request.base.ref }} | sed 's/bw_branch_//g' | sed 's/_/./g' )
+          echo "version=$version" >> $GITHUB_OUTPUT
+          echo "build_number=$version-bwbuild${{ github.event.pull_request.number }}" >> $GITHUB_OUTPUT
+
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.base.ref }}
+
+      - name: Set up JDK
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Grant execute permission for gradlew
+        run: chmod +x ./gradlew
+
+      - name: Build Solr tarball
+        run: ./gradlew fullDistTar
+
+      - name: Push tag
+        run: |
+          git config user.email brandwatch-bot-github@brandwatch.com
+          git config user.name BrandwatchBot
+          git tag -am "bw-solr release: ${{ steps.variables.outputs.build_number }}" ${{ steps.variables.outputs.build_number }}
+          git push origin ${{ steps.variables.outputs.build_number }}
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          body: "bw-solr release: ${{ github.event.pull_request.base.ref }}"
+          tag_name: ${{ steps.variables.outputs.version }}-${{ steps.variables.outputs.build_number }}
+          files: solr/packaging/build/distributions/*.tar
+          repository: Brandwatch/solr
+          token: ${{ secrets.GITHUB_TOKEN }}
